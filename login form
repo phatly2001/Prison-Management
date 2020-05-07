@@ -1,0 +1,111 @@
+package Forms;
+
+import JS.Main;
+import Mainform.MainformAd;
+import Mainform.MainformMem;
+
+import javax.swing.*;
+import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class Login_form extends JDialog {
+    public JPanel defaultpanel;
+    public JLabel label1, label2;
+    public JTextField textField;
+    public JPasswordField passwordField;
+    public JButton button;
+    public JCheckBox checkBox1, checkBox2;
+
+    public Login_form(Frame owner, String title, boolean modal) {
+        super(owner, title, modal);
+        setLayout(null);
+        defaultpanel = (JPanel) getContentPane();
+
+        //init label
+        label1 = new JLabel("Username ");
+        label1.setBounds(50, 50, 200, 50);
+        defaultpanel.add(label1);
+
+        label2 = new JLabel("Password ");
+        label2.setBounds(50, 100, 200, 50);
+        defaultpanel.add(label2);
+
+        //init textfield
+        textField = new JTextField();
+        textField.setBounds(120, 55, 200, 40);
+        defaultpanel.add(textField);
+
+        //init password
+        passwordField = new JPasswordField();
+        passwordField.setBounds(120, 105, 200, 40);
+        defaultpanel.add(passwordField);
+
+        //init checkbox
+        checkBox1 = new JCheckBox("Admin");
+        checkBox1.setBounds(130, 150, 100, 50);
+        checkBox1.setSelected(false);
+        defaultpanel.add(checkBox1);
+
+        checkBox2 = new JCheckBox("Member");
+        checkBox2.setBounds(230, 150, 100, 50);
+        checkBox2.setSelected(false);
+        defaultpanel.add(checkBox2);
+
+        //init button
+        button = new JButton("Log In");
+        button.setBounds(160, 200, 120, 40);
+        defaultpanel.add(button);
+        //init action
+        button.addActionListener(e -> {
+            String s1 = textField.getText();
+            char[] p1 = passwordField.getPassword();
+            String s2 = new String(p1);
+
+            if (checkBox1.isSelected()) {
+                if (s1.equals("Admin") && s2.equals("123456")) {
+                    JOptionPane.showMessageDialog(button, "Login Successful");
+                    dispose();
+                    MainformAd mf = new MainformAd();
+                } else {
+                    if (s1.equals("") || s2.equals("")) {
+                        JOptionPane.showMessageDialog(button, "Please enter username and password", "Notification", 2);
+                    } else {
+                        JOptionPane.showMessageDialog(button, "Invalid Username or Password");
+                    }
+                }
+            }
+
+
+            if (checkBox2.isSelected()) {
+                try {
+                    Class.forName("com.mysql.jdbc.Driver");
+                    Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/usertable", "root", "Hungphat1969");
+                    PreparedStatement ps = connection.prepareStatement("select * from users  where Username=?  and Password=? ");
+                    ps.setString(1, s1);
+                    ps.setString(2, s2);
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next()) {
+                        JOptionPane.showMessageDialog(button, "Login successfully!!", "notification", 1);
+                        dispose();
+                        MainformMem mem = new MainformMem();
+                    } else if (s1.equals("") || s2.equals("")) {
+                        JOptionPane.showMessageDialog(button, "Please enter username and password", "Notification", 2);
+                    } else {
+                        JOptionPane.showMessageDialog(button, "Incorrect Username Or Password", "notification", 2);
+                    }
+                } catch (Exception exception) {
+                    System.out.println(exception);
+                }
+            }
+
+        });
+
+        //==========================\\
+        setBounds(500, 250, 400, 300);
+        setVisible(true);
+
+    }
+}
